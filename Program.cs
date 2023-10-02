@@ -33,7 +33,7 @@ namespace Tea
         static void Main(string[] args)
         {
             Console.WriteLine($"Welcome to Tea Shell in {currentDirectory}!");
-            Console.WriteLine("You are running version DEV-0");
+            Console.WriteLine("You are running version DEV-2");
             bool exit = false;
 
             while (!exit)
@@ -56,6 +56,9 @@ namespace Tea
                         break;
                     case "cd":
                         ChangeDirectory(commandArgs);
+                        break;
+                    case "pwd":
+                        Console.WriteLine(Environment.CurrentDirectory);
                         break;
                     default:
                         ExecuteCommand(commandArgs);
