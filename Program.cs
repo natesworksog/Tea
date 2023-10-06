@@ -36,6 +36,11 @@ namespace Tea
 
             while (!exit)
             {
+                string autostartPath = Path.Combine(homeDirectory, ".config", "tea", "autostart.tea");
+                if (File.Exists(autostartPath))
+                {
+                    ExecuteScript(autostartPath);
+                }
                 Console.Write($"{GetPrompt()}");
                 string input = ReadCommandWithHistory();
 
@@ -57,7 +62,14 @@ namespace Tea
                         Console.WriteLine(Environment.CurrentDirectory);
                         break;
                     default:
-                        ExecuteCommand(commandArgs);
+                        if (File.Exists(command) && command.EndsWith(".tea", StringComparison.OrdinalIgnoreCase))
+                        {
+                            ExecuteScript(command);
+                        }
+                        else
+                        {
+                            ExecuteCommand(commandArgs);
+                        }
                         break;
                 }
 
@@ -98,13 +110,20 @@ namespace Tea
             }
         }
 
+
         static void ExecuteCommand(string[] commandArgs)
         {
             try
             {
                 string command = commandArgs[0];
                 string arguments = string.Join(" ", commandArgs.Skip(1));
-
+                
+                if (command.StartsWith("~"))
+                {
+                    string homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                    command = Path.Combine(homeDirectory, command.Substring(1));
+                }
+                
                 if (File.Exists(command) && !command.Contains(Path.DirectorySeparatorChar))
                 {
                     ProcessStartInfo psi = new ProcessStartInfo
@@ -189,7 +208,6 @@ namespace Tea
             string prompt = $"\u001b[36m{user}\u001b[0m@\u001b[36m{hostname}\u001b[0m:\u001b[34m{directory}\u001b[0m $ ";
             return prompt;
         }
-
         
         static string ReadCommandWithHistory()
         {
@@ -248,5 +266,38 @@ namespace Tea
             }
             inputBuffer.Clear();
         }
+        
+        static void ExecuteScript(string filePath)
+        {
+            try
+            {
+                string[] lines = File.ReadAllLines(filePath);
+                foreach (string line in lines)
+                {
+                    string trimmedLine = line.Trim();
+                    if (!string.IsNullOrWhiteSpace(trimmedLine))
+                    {
+                        // Handle "~" at the beginning of the script file path
+                        if (trimmedLine.StartsWith("~"))
+                        {
+                            string expandedPath = Path.Combine(homeDirectory, trimmedLine.Substring(1));
+                            string[] commandArgs = expandedPath.SplitCommandLine();
+                            ExecuteCommand(commandArgs);
+                        }
+                        else
+                        {
+                            string[] commandArgs = trimmedLine.SplitCommandLine();
+                            ExecuteCommand(commandArgs);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error executing commands from file: {ex.Message}");
+                Console.ResetColor();
+            }
+        } 
     }
 }
