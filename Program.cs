@@ -32,8 +32,6 @@ namespace Tea
 
         static void Main(string[] args)
         {
-            Console.WriteLine($"Welcome to Tea Shell in {currentDirectory}!");
-            Console.WriteLine("You are running version DEV-2");
             bool exit = false;
 
             while (!exit)
@@ -68,8 +66,6 @@ namespace Tea
                 commandHistory.Insert(0, input);
                 historyIndex = -1;
             }
-
-            Console.WriteLine("Goodbye! Thanks for using Tea Shell.");
         }
 
         static void ChangeDirectory(string[] commandArgs)
