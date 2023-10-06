@@ -33,14 +33,15 @@ namespace Tea
         static void Main(string[] args)
         {
             bool exit = false;
-
+            
+            string autostartPath = Path.Combine(homeDirectory, ".config", "tea", "autostart.tea");
+            if (File.Exists(autostartPath))
+            {
+                ExecuteScript(autostartPath);
+            }
+            
             while (!exit)
             {
-                string autostartPath = Path.Combine(homeDirectory, ".config", "tea", "autostart.tea");
-                if (File.Exists(autostartPath))
-                {
-                    ExecuteScript(autostartPath);
-                }
                 Console.Write($"{GetPrompt()}");
                 string input = ReadCommandWithHistory();
 
