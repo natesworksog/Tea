@@ -36,9 +36,7 @@ namespace Tea
 
             while (!exit)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.Write($"{GetPrompt()}> ");
-                Console.ResetColor();
+                Console.Write($"{GetPrompt()}");
                 string input = ReadCommandWithHistory();
 
                 if (string.IsNullOrWhiteSpace(input))
@@ -81,6 +79,10 @@ namespace Tea
             if (newDirectory == "~")
             {
                 newDirectory = homeDirectory;
+            }
+            else if (newDirectory.StartsWith("~" + Path.DirectorySeparatorChar))
+            {
+                newDirectory = Path.Combine(homeDirectory, newDirectory.Substring(2));
             }
 
             try
@@ -178,11 +180,17 @@ namespace Tea
 
         static string GetPrompt()
         {
-            return currentDirectory.StartsWith(homeDirectory)
+            string user = Environment.UserName;
+            string hostname = Environment.MachineName;
+            string directory = currentDirectory.StartsWith(homeDirectory)
                 ? $"~{currentDirectory.Substring(homeDirectory.Length)}"
                 : currentDirectory;
+
+            string prompt = $"\u001b[36m{user}\u001b[0m@\u001b[36m{hostname}\u001b[0m:\u001b[34m{directory}\u001b[0m $ ";
+            return prompt;
         }
 
+        
         static string ReadCommandWithHistory()
         {
             ConsoleKeyInfo keyInfo;
